@@ -1,16 +1,20 @@
 #!/usr/bin/env bash
-# Bash script that will display information about subdomains
-domain () {
-if [ "$2" ];
+# Script that will display information about subdomains
+DOMAIN="$1"
+SUBDOMAIN="$2"
+
+if [ "$#" -eq 1 ]
 then
-    echo -n "The subdomain $2 is a"
-    dig "$2.$1" | grep -A1 'ANSWER SECTION:' | awk '{print " " $4 " record and points to " $5}' | tail -n 1
-else
-    for i in www lb-01 web-01 web-02
-    do
-        echo -n "The subdomain $i is a"
-        dig "$i.$1" | grep -A1 'ANSWER SECTION:' | awk '{print " " $4 " record and points to " $5}' | tail -n 1
-    done
+	for subdomains in "www" "lb-01" "web-01" "web-02"
+	do
+		A=$(dig $subdomains.$DOMAIN | grep -A1 'ANSWER SECTION:' | tail -n 1 | awk '{ print $4 }')
+		IP=$(dig $subdomains.$DOMAIN | grep -A1 'ANSWER SECTION:' | tail -n 1 | awk '{ print $5 }')
+		echo "The subdomain $subdomains is a $A record and points to $IP"
+	done
+elif [ "$#" -eq 2 ]
+then
+	A=$(dig $SUBDOMAIN.$DOMAIN | grep -A1 'ANSWER SECTION:' | tail -n 1 | awk '{ print $4 }')
+	IP=$(dig $SUBDOMAIN.$DOMAIN | grep -A1 'ANSWER SECTION:' | tail -n 1 | awk '{ print $5 }')
+	echo "The subdomain $SUBDOMAIN is a $A record and points to $IP"
 fi
-}
-domain "$1" "$2"
+
