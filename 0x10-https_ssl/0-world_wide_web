@@ -1,20 +1,25 @@
 #!/usr/bin/env bash
-# Script that will display information about subdomains
-DOMAIN="$1"
-SUBDOMAIN="$2"
+# outputs information about domains
+# and sub domains
 
-if [ "$#" -eq 1 ]
-then
-	for subdomains in "www" "lb-01" "web-01" "web-02"
-	do
-		A=$(dig $subdomains.$DOMAIN | grep -A1 'ANSWER SECTION:' | tail -n 1 | awk '{ print $4 }')
-		IP=$(dig $subdomains.$DOMAIN | grep -A1 'ANSWER SECTION:' | tail -n 1 | awk '{ print $5 }')
-		echo "The subdomain $subdomains is a $A record and points to $IP"
-	done
-elif [ "$#" -eq 2 ]
-then
-	A=$(dig $SUBDOMAIN.$DOMAIN | grep -A1 'ANSWER SECTION:' | tail -n 1 | awk '{ print $4 }')
-	IP=$(dig $SUBDOMAIN.$DOMAIN | grep -A1 'ANSWER SECTION:' | tail -n 1 | awk '{ print $5 }')
-	echo "The subdomain $SUBDOMAIN is a $A record and points to $IP"
+subdomains=( "www" "lb-01" "web-01" "web-02" )
+
+runDig () {
+    subdomain=$1
+    domain=$2
+
+    dig "$subdomain.$domain" | grep -A1 'ANSWER SECTION:' | tail -1 | awk -v s="$subdomain" 'BEGIN { FS = " " } ; { print "The subdomain " s " is a " $4 " record and points to " $5 }'
+}
+
+if [ $# -eq 1 ]; then
+    domain="$1"
+    for s in "${subdomains[@]}"
+    do
+	runDig "$s" "$domain"
+    done
+elif [ $# -eq 2 ]; then
+    domain="$1"
+    subdomain="$2"
+    runDig "$subdomain" "$domain"
 fi
 
