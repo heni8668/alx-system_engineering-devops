@@ -38,21 +38,21 @@ defaults
         errorfile 502 /etc/haproxy/errors/502.http
         errorfile 503 /etc/haproxy/errors/503.http
         errorfile 504 /etc/haproxy/errors/504.http
-listen mahi-uha
+listen heni
         bind :80
         mode http
         balance roundrobin
-        server 971-web-01 35.227.5.245:80 check
-        server 971-web-02 3.236.14.41:80 check
+        server 24289-web-01 44.192.21.58:80 check
+        server 24289-web-02 3.214.217.150:80 check
 frontend www-http
         bind :80
         reqadd X-Forwarded-Proto:\ http
         default_backend web-backend
 frontend www-https
-        bind :443 ssl crt /etc/haproxy/certs/lb-01.mahi-uha.tech.pem
+        bind :443 ssl crt /etc/haproxy/certs/lb-01.heni.tech.pem
         reqadd X-Forwarded-Proto:\ https
         default_backend web-backend
 backend web-backend
         redirect scheme https if !{ ssl_fc }
-        server 971-web-01 35.227.5.245:80 check
-        server 971-web-02 3.236.14.41:80 check
+        server 24289-web-01 44.192.21.58:80 check
+        server 24289-web-02 3.214.217.150:80 check
